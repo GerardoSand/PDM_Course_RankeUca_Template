@@ -6,12 +6,12 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 
 interface RankeUcaApi {
-    suspend fun getRestaurants(): Result<List<options>>
+    suspend fun getOptions(): Result<List<options>>
     suspend fun vote(optionId: Int): Result<String>
 }
 
 class RankeUcaApiImpl : RankeUcaApi {
-    override suspend fun getRestaurants(): Result<List<options>> {
+    override suspend fun getOptions(): Result<List<options>> {
         return try {
             val response: List<options> = KtorClient.client.get("/options").body()
             Result.success(response)

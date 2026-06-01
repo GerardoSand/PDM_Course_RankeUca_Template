@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class DishesViewModel : ViewModel() {
+class HomeViewModel : ViewModel() {
     private val repository: RankeUcaApi = RankeUcaApiImpl()
 
-    private val _uiState = MutableStateFlow<options?>(null)
-    val uiState: StateFlow<options?> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<List<options>>(emptyList())
+    val uiState: StateFlow<List<options>> = _uiState.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
@@ -22,13 +22,13 @@ class DishesViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
-    fun loadRestaurantMenu(id: Int) {
+    fun loadOptions() {
         viewModelScope.launch {
             _error.value = null
             _loading.value = true
-            repository.get
-                .onSuccess { restaurant ->
-                    _uiState.value = restaurant
+            repository.getOptions()
+                .onSuccess { optionsList ->
+                    _uiState.value = optionsList
                 }
                 .onFailure { e ->
                     _error.value = "Error al cargar el menú: ${e.message}"
