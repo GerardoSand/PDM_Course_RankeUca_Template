@@ -43,7 +43,6 @@ object KtorClient {
         ignoreUnknownKeys = true
       })
     }
-
     // Plugin de logging
     install(Logging) {
       logger = object : Logger {

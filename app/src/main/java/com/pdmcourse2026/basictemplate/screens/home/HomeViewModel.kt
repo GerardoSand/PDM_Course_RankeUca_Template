@@ -37,11 +37,13 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun vote(optionId: Int) {
+    fun vote(optionId: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {
+            _error.value = null
             repository.vote(optionId)
+
                 .onSuccess {
-                    loadOptions() // Refresh list after voting
+                    onSuccess()
                 }
                 .onFailure { e ->
                     _error.value = "Error al votar: ${e.message}"

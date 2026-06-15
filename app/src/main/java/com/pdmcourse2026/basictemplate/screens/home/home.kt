@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -60,24 +61,26 @@ fun HomeScreen(
                         modifier = Modifier
                             .padding(8.dp)
                             .fillMaxWidth()
-                            .clickable { viewModel.vote(option.id) }
+                            .clickable { viewModel.vote(option.id){
+                                onOptionClick(option.id.toString())
+                            } }
                     ) {
-                        Column(modifier = Modifier.padding(8.dp)) {
-                            AsyncImage(
-                                model = option.imageUrl,
-                                contentDescription = option.name,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Text(
-                                text = option.name,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(top = 8.dp)
-                            )
-                            Text(text = "Votos: ${option.votes}")
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                AsyncImage(
+                                    model = option.imageUrl,
+                                    contentDescription = option.name,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Text(
+                                    text = option.name,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
+

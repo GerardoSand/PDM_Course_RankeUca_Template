@@ -19,7 +19,7 @@ interface RankeUcaApi {
 class RankeUcaApiImpl : RankeUcaApi {
     override suspend fun getOptions(): Result<List<options>> {
         return try {
-            val response: List<options> = KtorClient.client.get("/options").body()
+            val response: List<options> = KtorClient.client.get("options").body()
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
@@ -28,7 +28,7 @@ class RankeUcaApiImpl : RankeUcaApi {
 
     override suspend fun vote(optionId: Int): Result<String> {
         return try {
-            val response: String = KtorClient.client.post("/vote") {
+            val response: String = KtorClient.client.post("vote") {
                 setBody(VoteRequest(optionId))
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
             }.body()

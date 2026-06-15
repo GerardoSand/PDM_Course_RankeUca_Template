@@ -18,7 +18,9 @@ fun RankeUCA_App() {
       entry<Routes.options> {
         HomeScreen(
           onOptionClick = { option ->
+
             backStack.add(Routes.Results)
+
           }
         )
       }
