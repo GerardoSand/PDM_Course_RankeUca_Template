@@ -7,8 +7,8 @@ import com.pdmcourse2026.basictemplate.model.Question
 data class QuestionWithOptions(
     @Embedded val question: QuestionEntity,
     @Relation(
-        parentColumns = ["id"],
-        entityColumns = ["questionId"]
+        parentColumn = "id",
+        entityColumn = "questionId"
     )
     val options: List<OptionEntity>
 )
