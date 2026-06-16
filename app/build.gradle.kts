@@ -5,6 +5,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.ksp)
 }
 
 val localProperties = Properties()
@@ -15,11 +16,7 @@ if (localPropertiesFile.exists()) {
 
 android {
   namespace = "com.pdmcourse2026.basictemplate"
-  compileSdk {
-    version = release(36) {
-      minorApiLevel = 1
-    }
-  }
+  compileSdk = 36
 
   defaultConfig {
     applicationId = "com.pdmcourse2026.basictemplate"
@@ -29,8 +26,6 @@ android {
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-    //buildConfigField("String", "API_TOKEN", "\"$apiToken\"")
   }
 
   buildTypes {
@@ -58,9 +53,15 @@ dependencies {
   implementation(libs.androidx.compose.ui.graphics)
   implementation(libs.androidx.compose.ui.tooling.preview)
   implementation(libs.androidx.compose.material3)
+  implementation(libs.androidx.compose.material.icons.core)
 
   implementation(libs.androidx.navigation3.runtime)
   implementation(libs.androidx.navigation3.ui)
+
+  implementation(libs.room.runtime)
+  implementation(libs.room.ktx)
+  ksp(libs.room.compiler)
+
   implementation(libs.kotlinx.serialization.core)
   implementation(libs.coil.compose)
   implementation(libs.coil.network.okhttp)

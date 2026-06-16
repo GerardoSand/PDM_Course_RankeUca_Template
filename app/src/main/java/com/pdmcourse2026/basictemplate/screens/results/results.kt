@@ -1,57 +1,42 @@
 package com.pdmcourse2026.basictemplate.screens.results
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
-    onOptionClick: (String) -> Unit,
-    viewModel: ResultsViewModel = viewModel()
+    questionId: Int,
+    selectedOptionId: Int = -1,
+    onBackClick: () -> Unit,
+    viewModel: ResultsViewModel = viewModel(
+        factory = ResultsViewModel.provideFactory(questionId)
+    )
 ) {
-    val optionsList by viewModel.uiState.collectAsState()
-    val loading by viewModel.loading.collectAsState()
-    val error by viewModel.error.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadOptions()
-    }
+    val optionsList by viewModel.options.collectAsStateWithLifecycle()
+    val sortedOptions = optionsList.sortedByDescending { it.votes }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = topAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
-                title = { Text("Resultados - RankeUca") },
+                title = { Text("Ranking de Resultados") },
             )
         },
         bottomBar = {
@@ -60,76 +45,92 @@ fun ResultScreen(
                 tonalElevation = 8.dp
             ) {
                 Button(
-                    onClick = { onOptionClick("option") },
+                    onClick = onBackClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    Text("Volver a Votar")
+                    Text("Volver al Inicio")
                 }
             }
         }
     ) { innerPadding ->
-        if (loading) {
-            Column(
+        if (sortedOptions.isEmpty()) {
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
+                contentAlignment = Alignment.Center
             ) {
-                Spacer(modifier = Modifier.height(32.dp))
-                Text("Cargando resultados...")
+                Text("No hay votos registrados todavía.")
             }
-        } else if (error != null) {
-            Text("Error: $error", modifier = Modifier.padding(innerPadding))
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 16.dp)
             ) {
                 item {
                     Text(
-                        text = "Ranking Actual",
+                        text = "Resultados Actuales",
                         style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(vertical = 16.dp)
                     )
                 }
-                items(optionsList) { option ->
+                items(sortedOptions) { option ->
+                    val isSelected = option.id == selectedOptionId
                     Card(
                         modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                            .padding(vertical = 8.dp)
+                            .fillMaxWidth()
+                            .then(
+                                if (isSelected) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+                                else Modifier
+                            ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 8.dp else 2.dp),
+                        colors = if (isSelected) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+                                 else CardDefaults.cardColors()
                     ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             AsyncImage(
                                 model = option.imageUrl,
                                 contentDescription = option.name,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(150.dp),
+                                    .size(80.dp),
                                 contentScale = androidx.compose.ui.layout.ContentScale.Crop
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = option.name,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "${option.votes} votos",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.ExtraBold
-                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    text = option.name,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "${option.votes} votos",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                                if (isSelected) {
+                                    Text(
+                                        text = "¡Tu elección!",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         }
                     }
                 }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }
 }
-
