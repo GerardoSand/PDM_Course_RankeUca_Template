@@ -22,7 +22,7 @@ fun QuestionsScreen(
     viewModel: QuestionsViewModel = viewModel(factory = QuestionsViewModel.Factory)
 ) {
     val questions by viewModel.questions.collectAsStateWithLifecycle()
-    var showDialog by remember { mutableStateOf(false) }
+    var showDialog by rememberSaveable { mutableStateOf(false) }
     var newQuestionTitle by remember { mutableStateOf("") }
 
     Scaffold(
